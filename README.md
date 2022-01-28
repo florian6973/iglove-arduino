@@ -3,6 +3,7 @@
 ## Configuration
 
 Arduino Nano BLE Sense on a Glove (with FlexSensor & IR LEDs), with the right electrical installation
+
 Arduino Uno with LED to simulate a lamp (with a LED?), with the right electrical installation
 
 ## Usage
