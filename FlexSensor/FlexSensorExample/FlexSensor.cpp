@@ -11,6 +11,30 @@ FlexSensor::FlexSensor(int pin, int type)
   _type = type;
 }
 
+int FlexSensor::getError()
+
+{
+
+int valeur = analogRead(_pin);
+int error = 0; 
+  //Serial.println(_pin);
+  //Serial.println(valeur);
+
+if (valeur <80) {
+  
+
+error = 1;
+  }
+
+else{
+  error = 0;
+  }
+
+return error;
+}
+
+
+
 int FlexSensor::getEtat()
 {
   int etat = 2;
@@ -18,11 +42,12 @@ int valeur = analogRead(_pin);
   //Serial.println(_pin);
   //Serial.println(valeur);
 
+
 if (_type == INDEX){
   
 
 
-if (240 < valeur) {
+if (210 < valeur) {
   etat = 1;
   }
 
@@ -35,21 +60,27 @@ else{
 
 else
 {
-  if (180 < valeur) {
+  if (160 < valeur || valeur <80) {
   etat = 1;
   }
-
-else{
-  etat = 0;
-  }
   
+  else{
+    etat = 0;
+    }
+    
 }
 
   return etat;
 }
 
-static bool FlexSensor::pointe(FlexSensor index, FlexSensor majeur)
+bool FlexSensor::pointe(FlexSensor index, FlexSensor majeur, FlexSensor quatrieme)
 {
-  bool pointage = (bool)index.getEtat()*(1-majeur.getEtat());
+ if (index.getError() == 1 || majeur.getError() == 1 || quatrieme.getError() == 1){
+  Serial.println("il y a une erreur");
+ }
+
+ else {
+  bool pointage = (bool)index.getEtat()*(1-majeur.getEtat())*(1-quatrieme.getEtat());
   return pointage;
+  }
 }

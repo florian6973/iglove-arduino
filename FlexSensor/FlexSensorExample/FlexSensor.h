@@ -11,7 +11,8 @@ class FlexSensor
   public:
     FlexSensor(int pin, int type);
     int getEtat();
-    static bool pointe(FlexSensor index, FlexSensor majeur);
+    int getError();
+    static bool pointe(FlexSensor index, FlexSensor majeur, FlexSensor quatrieme);
   private:
     int _pin;
     int _type;
