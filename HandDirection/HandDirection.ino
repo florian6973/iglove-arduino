@@ -23,39 +23,37 @@
 */
 // The SFE_LSM9DS1 library requires both Wire and SPI be
 // included BEFORE including the 9DS1 library.
-#include <Wire.h>
-#include <SPI.h>
-#include <SparkFunLSM9DS1.h>
+#include <Arduino_LSM9DS1.h>
 
 //////////////////////////
 // LSM9DS1 Library Init //
 //////////////////////////
 // default settings gyro  245 d/s, accel = 2g, mag = 4G
-LSM9DS1 imu;
+
+// SDO_XM and SDO_G are both pulled high, so our addresses are:
+#define LSM9DS1_M  0x1E // Would be 0x1C if SDO_M is LOW
+#define LSM9DS1_AG 0x6B // Would be 0x6A if SDO_AG is LOW
 
 // VERY IMPORTANT!
 //These are the previously determined offsets and scale factors for accelerometer and magnetometer, using MPU9250_cal and Magneto
 //The compass will NOT work well or at all if these are not correct
 
 //Accel scale 16457.0 to normalize
-
  float A_B[3]
- {  942.95,-2462.62, -448.72};
+ {   -0.06,    0.02,   -0.02};
 
  float A_Ainv[3][3]
-  {{  1.05636, -0.01118,  0.02556},
-  { -0.01118,  0.99128, -0.04980},
-  {  0.02556, -0.04980,  0.97776}};
+  {{  1.04475, -0.00328, -0.04027},
+  { -0.00328,  0.97819, -0.01222},
+  { -0.04027, -0.01222,  1.00217}};
 
-  
  float M_B[3]
- { 1214.97, 1013.80, -649.91};
+ {   19.11,   23.44,   -9.72};
 
  float M_Ainv[3][3]
-  {{  1.30510,  0.02036, -0.17754},
-  {  0.02036,  1.30777, -0.01330},
-  { -0.17754, -0.01330,  1.31422}};
-
+  {{  1.22688,  0.05174,  0.09785},
+  {  0.05174,  1.18980, -0.04532},
+  {  0.09785, -0.04532,  1.25663}};
 
 // local magnetic declination in degrees
 float declination = 1.35;
@@ -73,18 +71,29 @@ float p[] = {0, 1, 0};  //Y marking on sensor board points toward yaw = 0
 #define PRINT_SPEED 2000 // ms between prints
 static unsigned long lastPrint = 0; // Keep track of print time
 
+
 void setup()
 {
   Serial.begin(9600);
   while (!Serial); //wait for connection
 
-  Wire.begin();
+  while (!IMU.begin()) {
+    Serial.println("Failed to initialize IMU!");
+    delay (100);
+  }
+  
+  /*Serial.println("Initializing the LSM9DS1");
+  uint16_t status = initLSM9DS1();
+  Serial.print("LSM9DS1 WHO_AM_I's returned: 0x");
+  Serial.println(status, HEX);
+  Serial.println("Should be 0x683D");
+  Serial.println();*/
 
-  if (imu.begin() == false) // with no arguments, this uses default addresses (AG:0x6B, M:0x1E) and i2c port (Wire).
+  /*if (imu.begin() == false) // with no arguments, this uses default addresses (AG:0x6B, M:0x1E) and i2c port (Wire).
   {
     Serial.println(F("LSM9DS1 not detected"));
     while (1);
-  }
+  }*/
   delay(500);
 }
 
@@ -93,8 +102,8 @@ void loop()
   float Axyz[3], Mxyz[3]; //centered and scaled accel/mag data
 
   // Update the sensor values whenever new data is available
-  if ( imu.accelAvailable() ) imu.readAccel();
-  if ( imu.magAvailable() )   imu.readMag();
+  //if ( IMU.accelerationAvailable() ) imu.readAccel();
+  //if ( IMU.magneticFieldAvailable() )   imu.readMag();
 
   /*if (millis() - lastPrint > PRINT_SPEED)
   {
@@ -133,9 +142,11 @@ void loop()
     Axyz[0] = -Axyz[0];
     float heading = get_heading(Axyz, Mxyz, p);
     float pitch = atan2(-Axyz[0], sqrt(Axyz[1] * Axyz[1] + Axyz[2] * Axyz[2]));
+    float roll = atan2(Axyz[1], sqrt(Axyz[0] * Axyz[0] + Axyz[2] * Axyz[2]));
 
     Serial.println(heading);
     Serial.println(pitch);
+    Serial.println(roll);
     heading = heading * M_PI / 180; // to radians
     float u = cos(heading)*cos(pitch);
     float v = sin(heading)*cos(pitch);
@@ -175,14 +186,18 @@ int get_heading(float acc[3], float mag[3], float p[3])
 // subtract offsets and correction matrix to accel and mag data
 
 void get_scaled_IMU(float Axyz[3], float Mxyz[3]) {
+  float aax, aay, aaz, mmx, mmy, mmz;  
+    IMU.readAcceleration(aax, aay, aaz);
+    IMU.readMagneticField(mmx, mmy, mmz);
+  
   byte i;
   float temp[3];
-    Axyz[0] = imu.ax;
-    Axyz[1] = imu.ay;
-    Axyz[2] = imu.az;
-    Mxyz[0] = imu.mx;
-    Mxyz[1] = imu.my;
-    Mxyz[2] = imu.mz;
+    Axyz[0] = aax;
+    Axyz[1] = aay;
+    Axyz[2] = aaz;
+    Mxyz[0] = mmx;
+    Mxyz[1] = mmy;
+    Mxyz[2] = mmz;
   //apply offsets (bias) and scale factors from Magneto
   for (i = 0; i < 3; i++) temp[i] = (Axyz[i] - A_B[i]);
   Axyz[0] = A_Ainv[0][0] * temp[0] + A_Ainv[0][1] * temp[1] + A_Ainv[0][2] * temp[2];

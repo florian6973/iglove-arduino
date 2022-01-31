@@ -84,7 +84,7 @@ for( i = 0; i < nlines; i++)
  {
    fgets(buf, 100, fp);
    index=sscanf(buf, "%lf,%lf,%lf", &x, &y, &z);
-   printf("%3d %6.0f %6.0f %6.0f\n",i,x,y,z);
+   printf("%6.2f %6.2f %6.2f\n",i,x,y,z);
    x2 = x*x + y*y + z*z;
    xs += x2;
    xave += sqrt(x2);
