@@ -1,7 +1,8 @@
 #include <Arduino_LSM9DS1.h>
 #include <ArduinoBLE.h>
 
-BLEService gloveService("1111");
+//BLEService gloveService("1111");
+BLEService gloveService("19B10010-E8F2-537E-4F6C-D104768A1214"); // create service 
 
 BLEFloatCharacteristic acc_x("a001",  // standard 16-bit characteristic UUID
     BLERead | BLENotify);
@@ -24,8 +25,11 @@ BLEFloatCharacteristic mag_y("c002",  // standard 16-bit characteristic UUID
 BLEFloatCharacteristic mag_z("c003",  // standard 16-bit characteristic UUID
     BLERead | BLENotify);
 
-BLEStringCharacteristic cmd("d001",  // standard 16-bit characteristic UUID
-    BLERead | BLENotify, 4);
+BLEStringCharacteristic cmd("abcd",  // standard 16-bit characteristic UUID
+    BLERead | BLEIndicate, 4);
+
+BLEStringCharacteristic check("abce",  // standard 16-bit characteristic UUID
+    BLERead | BLEWrite, 4);
 
 void initBluetooth()
 {
@@ -37,7 +41,10 @@ void initBluetooth()
   
   BLE.setLocalName("iGlove");
   BLE.setDeviceName("iGlove-D");
-  BLE.setAdvertisedService(gloveService); // add the service UUID
+  BLE.setAdvertisedService(gloveService); // add the service UUID 
+
+  check.setEventHandler(BLEWritten, checkWritten);
+  check.setValue("0");
   
   gloveService.addCharacteristic(acc_x);
   gloveService.addCharacteristic(acc_y);
@@ -49,9 +56,10 @@ void initBluetooth()
   gloveService.addCharacteristic(mag_y);
   gloveService.addCharacteristic(mag_z);
   gloveService.addCharacteristic(cmd);
+  gloveService.addCharacteristic(check);
   
   BLE.addService(gloveService); // Add the service
-  
+
   /* Start advertising BLE.  It will start continuously transmitting BLE
      advertising packets and will be visible to remote BLE central devices
      until it receives a new connection */
@@ -118,6 +126,7 @@ void sendIMU() // only send when impulse
     mag_z.writeValue(z3);     
   }
   delay(50);
+  //cmd.writeValue("ok");
 }
 
 void sendInfos()
@@ -125,19 +134,32 @@ void sendInfos()
   Serial.println("Sending infos...");
   sendIMU();
   
-  cmd.writeValue("TEST");
+}
+
+
+void checkWritten(BLEDevice central, BLECharacteristic characteristic) {
+  // central wrote new value to characteristic, update LED
+  Serial.print("Characteristic event, written: ");
+  byte s = 0;
+  check.readValue(s);
+  Serial.println(s);
 }
 
 void loopAction()
-{
+{ 
   if (Serial.available())
   {
     delay(100);
     sendInfos();
-    Serial.read();
-         while(Serial.available() > 0) {
+      while(Serial.available() > 0) {
         char t = Serial.read();
       }
+      delay(50);
+      cmd.writeValue("TEST");
+      Serial.println("Test envoyé");
+      delay(50);
+      cmd.writeValue("end");
+      delay(50);
   }
 }
 
@@ -157,7 +179,9 @@ void loop() {
     // while the central is connected:
     while (central.connected()) {
       loopAction();
+      BLE.poll();
     }
+
     // when the central disconnects, turn off the LED:
     digitalWrite(LED_BUILTIN, LOW);
     Serial.print("Disconnected from central: ");
