@@ -47,17 +47,17 @@ int doigt_connecte;
     }
   if (valeur > 150 && valeur < 200){
     
-    Serial.println("connecté à index");
+    Serial.println("connectÃ© Ã  index");
     doigt_connecte = 1;
     }
   if (valeur > 600 && valeur < 700){
     
-    Serial.println("connecté à majeur");
+    Serial.println("connectÃ© Ã  majeur");
     doigt_connecte = 2;
     }
   if (valeur > 950){
     
-    Serial.println("connecté à quatrieme");
+    Serial.println("connectÃ© Ã  quatrieme");
     doigt_connecte = 3;
     }
    
