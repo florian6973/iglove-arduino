@@ -1,6 +1,18 @@
 #include <Arduino_LSM9DS1.h>
 #include <ArduinoBLE.h>
 
+#include <Arduino_APDS9960.h>
+
+#include "ContactSensor.h"
+
+#include "FlexSensor.h"
+
+FlexSensor index0(A0, INDEX);
+FlexSensor majeur(A1, AUTREDOIGT);
+FlexSensor quatrieme(A2, AUTREDOIGT);
+
+ContactSensor mesure(A3);
+
 //BLEService gloveService("1111");
 BLEService gloveService("19B10010-E8F2-537E-4F6C-D104768A1214"); // create service 
 
@@ -30,6 +42,33 @@ BLEStringCharacteristic cmd("abcd",  // standard 16-bit characteristic UUID
 
 BLEStringCharacteristic check("abce",  // standard 16-bit characteristic UUID
     BLERead | BLEWrite, 4);
+
+void initProxSensor()
+{
+  //in-built LED
+  pinMode(LED_BUILTIN, OUTPUT);
+  //Red
+  pinMode(LEDR, OUTPUT);
+  //Green
+  pinMode(LEDG, OUTPUT);
+  //Blue
+  pinMode(LEDB, OUTPUT);
+  while (!Serial);
+  if (!APDS.begin()) {
+    Serial.println("Error initializing APDS9960 sensor!");
+  }
+  // for setGestureSensitivity(..) a value between 1 and 100 is required.
+  // Higher values makes the gesture recognition more sensible but less accurate
+  // (a wrong gesture may be detected). Lower values makes the gesture recognition
+  // more accurate but less sensible (some gestures may be missed).
+  // Default is 80
+  //APDS.setGestureSensitivity(80);
+  Serial.println("Detecting gestures ...");
+  // Turining OFF the RGB LEDs
+  digitalWrite(LEDR, HIGH);
+  digitalWrite(LEDG, HIGH);
+  digitalWrite(LEDB, HIGH);
+}
 
 void initBluetooth()
 {
@@ -96,6 +135,7 @@ void setup() {
 
   initComponents();
   initBluetooth();
+  initProxSensor();
 }
 
 void sendIMU() // only send when impulse
@@ -161,6 +201,59 @@ void loopAction()
       cmd.writeValue("end");
       delay(50);
   }
+
+   if (APDS.gestureAvailable()) {
+    // a gesture was detected, read and print to serial monitor
+    int gesture = APDS.readGesture();
+    switch (gesture) {
+      case GESTURE_UP:
+        Serial.println("Detected UP gesture");
+        digitalWrite(LEDR, LOW);
+        delay(1000);
+        digitalWrite(LEDR, HIGH);
+        break;
+      case GESTURE_DOWN:
+        Serial.println("Detected DOWN gesture");
+        digitalWrite(LEDG, LOW);
+        delay(1000);
+        digitalWrite(LEDG, HIGH);
+        break;
+      case GESTURE_LEFT:
+        Serial.println("Detected LEFT gesture");
+        digitalWrite(LEDB, LOW);
+        delay(1000);
+        digitalWrite(LEDB, HIGH);
+        break;
+      case GESTURE_RIGHT:
+        Serial.println("Detected RIGHT gesture");
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(1000);
+        digitalWrite(LED_BUILTIN, LOW);
+        break;
+      default:
+        Serial.println("No gesture");
+        break;
+    }
+  }
+
+  if (mesure.getEtat() == 1)
+  {
+  Serial.println(mesure.getEtat());
+  Serial.println(mesure.getDoigt());
+
+  Serial.println();
+Serial.println("index");
+Serial.println(index0.getEtat());
+Serial.println("majeur");
+Serial.println(majeur.getEtat());
+Serial.println("quatrieme");
+Serial.println(quatrieme.getEtat());
+Serial.println("pointage");
+Serial.println(FlexSensor::pointe(index0, majeur, quatrieme));
+
+      cmd.writeValue("TEST");
+  }
+
 }
 
 void loop() {  
