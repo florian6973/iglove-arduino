@@ -18,7 +18,12 @@ int ContactSensor::getEtat()
 
 int etat = 0;
 int valeur = analogRead(_pin);
-  
+//Serial.print("val");
+//Serial.println(valeur);
+  if (valeur <= 100)
+  {
+  return -1;
+  }
   if (valeur < 20){
     
     Serial.println("pas de contact");
@@ -40,7 +45,7 @@ int ContactSensor::getDoigt(){
 int valeur = analogRead(_pin);
 int doigt_connecte;
   
-  if (valeur < 50){
+  if (valeur < 100){
     
     Serial.println("aucun doigt");
     doigt_connecte = 0;
