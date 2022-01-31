@@ -47,7 +47,7 @@ int doigt_connecte;
     }
   if (valeur > 150 && valeur < 200){
     
-    Serial.println("connectÃ© Ã  index");
+    Serial.println("connectÃ© Ã  quatrieme");
     doigt_connecte = 1;
     }
   if (valeur > 600 && valeur < 700){
@@ -57,7 +57,7 @@ int doigt_connecte;
     }
   if (valeur > 950){
     
-    Serial.println("connectÃ© Ã  quatrieme");
+    Serial.println("connectÃ© Ã  index");
     doigt_connecte = 3;
     }
    
