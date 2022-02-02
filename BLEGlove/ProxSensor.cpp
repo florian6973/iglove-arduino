@@ -10,7 +10,7 @@ ProxSensor::ProxSensor()
   pinMode(LEDG, OUTPUT);
   //Blue
   pinMode(LEDB, OUTPUT);
-  while (!Serial);
+  
   if (!APDS.begin()) {
     Serial.println("Error initializing APDS9960 sensor!");
   }

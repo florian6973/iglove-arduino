@@ -7,6 +7,7 @@
 
 #include <ArduinoBLE.h>
 
+#include "Compass.h"
 
 class BtBase
 {
@@ -16,7 +17,7 @@ class BtBase
     BtBase();
     void sendCmd(const char* command);
     void loop(void (*callback)());
-    void sendIMU(IMUSensor imu);
+    void sendIMU(IMUSensor imu, Compass c);
   private:  
     
     static void checkWritten(BLEDevice central, BLECharacteristic characteristic);
@@ -38,6 +39,8 @@ class BtBase
     BLEStringCharacteristic cmd;
     
     BLEStringCharacteristic check;
+    
+    BLEFloatCharacteristic heading;
 };
 
 #endif

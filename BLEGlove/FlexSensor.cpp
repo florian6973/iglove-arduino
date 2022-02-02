@@ -14,8 +14,10 @@ FlexSensor::FlexSensor(int pin, int type)
 int FlexSensor::getError()
 
 {
-
+Serial.print("pin");
+Serial.println(_pin);
 int valeur = analogRead(_pin);
+Serial.println(valeur);
 int error = 0; 
   //Serial.println(_pin);
   //Serial.println(valeur);
@@ -81,7 +83,7 @@ bool FlexSensor::pointe(FlexSensor index, FlexSensor majeur, FlexSensor quatriem
  }
 
  else {
-  bool pointage = (bool)index.getEtat() && (1-majeur.getEtat()) && (1-quatrieme.getEtat());
+  bool pointage = (bool)index.getEtat() * (1-majeur.getEtat()) * (1-quatrieme.getEtat());
   return pointage;
   }
 }

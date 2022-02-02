@@ -5,28 +5,32 @@ BtBase* BtBase::main = nullptr;
     
 BtBase::BtBase() : 
      acc_x(BLEFloatCharacteristic("a001",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),
+        BLERead | BLEIndicate)),
      acc_y(BLEFloatCharacteristic("a002",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),
+        BLERead | BLEIndicate)),
      acc_z(BLEFloatCharacteristic("a003",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),
+        BLERead | BLEIndicate)),
      gyr_x(BLEFloatCharacteristic("b001",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),
+        BLERead | BLEIndicate)),
      gyr_y(BLEFloatCharacteristic("b002",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),
+        BLERead | BLEIndicate)),
      gyr_z(BLEFloatCharacteristic("b003",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),
+        BLERead | BLEIndicate)),
      mag_x(BLEFloatCharacteristic("c001",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),
+        BLERead | BLEIndicate)),
      mag_y(BLEFloatCharacteristic("c002",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),
+        BLERead | BLEIndicate)),
      mag_z(BLEFloatCharacteristic("c003",  // standard 16-bit characteristic UUID
-        BLERead | BLENotify)),        
+        BLERead | BLEIndicate)),        
      cmd( BLEStringCharacteristic("abcd",  // standard 16-bit characteristic UUID
         BLERead | BLEIndicate, 4)), 
      check(BLEStringCharacteristic("abce",  // standard 16-bit characteristic UUID
-        BLERead | BLEWrite, 4))
+        BLERead | BLEWrite, 4)),        
+     heading(BLEFloatCharacteristic("d001",  // standard 16-bit characteristic UUID
+        BLERead | BLEIndicate))
 {
+  pinMode(LED_BUILTIN, OUTPUT); // initialize the built-in LED pin to indicate when a central is connected
+  
   gloveService = BLEService("19B10010-E8F2-537E-4F6C-D104768A1214");
   
   if (!BLE.begin()) {
@@ -52,6 +56,7 @@ BtBase::BtBase() :
   gloveService.addCharacteristic(mag_z);
   gloveService.addCharacteristic(cmd);
   gloveService.addCharacteristic(check);
+  gloveService.addCharacteristic(heading);
   
   BLE.addService(gloveService); // Add the service
 
@@ -105,7 +110,7 @@ void BtBase::checkWritten(BLEDevice central, BLECharacteristic characteristic) {
   Serial.println(s);
 }
 
-void BtBase::sendIMU(IMUSensor imu)
+void BtBase::sendIMU(IMUSensor imu, Compass c)
 {
   float* data = imu.getInfos();
     acc_x.writeValue(data[0]);  
@@ -119,4 +124,6 @@ void BtBase::sendIMU(IMUSensor imu)
     mag_x.writeValue(data[6]);  
     mag_y.writeValue(data[7]);  
     mag_z.writeValue(data[8]);     
+
+    heading.writeValue(c.getHeading());
 }

@@ -3,11 +3,8 @@
 
 IMUSensor::IMUSensor()
 {
-  pinMode(LED_BUILTIN, OUTPUT); // initialize the built-in LED pin to indicate when a central is connected
-
   if (!IMU.begin()) {
     Serial.println("Failed to initialize IMU!");
-    while (1);
   }
 
   Serial.print("Accelerometer sample rate = ");
@@ -23,7 +20,7 @@ IMUSensor::IMUSensor()
 
 float* IMUSensor::getInfos() // only send when impulse
 {  
-  float data[9];
+  static float data[9];
   
   if (IMU.accelerationAvailable()) {
     IMU.readAcceleration(data[0], data[1], data[2]);  
