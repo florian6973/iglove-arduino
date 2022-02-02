@@ -77,10 +77,11 @@ bool FlexSensor::pointe(FlexSensor index, FlexSensor majeur, FlexSensor quatriem
 {
  if (index.getError() == 1 || majeur.getError() == 1 || quatrieme.getError() == 1){
   Serial.println("il y a une erreur");
+  return false;
  }
 
  else {
-  bool pointage = (bool)index.getEtat()*(1-majeur.getEtat())*(1-quatrieme.getEtat());
+  bool pointage = (bool)index.getEtat() && (1-majeur.getEtat()) && (1-quatrieme.getEtat());
   return pointage;
   }
 }
