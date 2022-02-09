@@ -119,7 +119,7 @@ void BtBase::checkWritten(BLEDevice central, BLECharacteristic characteristic) {
 void BtBase::sendIMU(IMUSensor imu, Compass c)
 {
   float* data = imu.getInfos();
-    acc_x.writeValue(data[0]);  
+    /*acc_x.writeValue(data[0]);  
     acc_y.writeValue(data[1]);  
     acc_z.writeValue(data[2]);  
     
@@ -129,7 +129,7 @@ void BtBase::sendIMU(IMUSensor imu, Compass c)
      
     mag_x.writeValue(data[6]);  
     mag_y.writeValue(data[7]);  
-    mag_z.writeValue(data[8]);     
+    mag_z.writeValue(data[8]);     */
 
     heading.writeValue(c.getHeading());
     pitch.writeValue(c.getPitch());

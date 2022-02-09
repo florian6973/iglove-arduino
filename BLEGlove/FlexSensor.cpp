@@ -14,10 +14,10 @@ FlexSensor::FlexSensor(int pin, int type)
 int FlexSensor::getError()
 
 {
-Serial.print("pin");
-Serial.println(_pin);
+//Serial.print("pin");
+//Serial.println(_pin);
 int valeur = analogRead(_pin);
-Serial.println(valeur);
+//Serial.println(valeur);
 int error = 0; 
   //Serial.println(_pin);
   //Serial.println(valeur);

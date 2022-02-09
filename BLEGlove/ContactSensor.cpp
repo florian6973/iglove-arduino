@@ -18,8 +18,8 @@ int ContactSensor::getEtat()
 
 int etat = 0;
 int valeur = analogRead(_pin);
-Serial.print("val");
-Serial.println(valeur);
+//Serial.print("val");
+//Serial.println(valeur);
   if (valeur <= 100)
   {
   return -1;

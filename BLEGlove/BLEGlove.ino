@@ -9,7 +9,7 @@ FlexSensor index0(A0, INDEX);
 FlexSensor majeur(A1, AUTREDOIGT);
 FlexSensor quatrieme(A2, AUTREDOIGT);
 ContactSensor mesure(A3);
-ProxSensor* ps = nullptr;
+//ProxSensor* ps = nullptr;
 IMUSensor* imu = nullptr;
 Compass* c = nullptr;
 
@@ -22,7 +22,7 @@ void setup() {
   //ps = ProxSensor();
   imu = new IMUSensor();
   c = new Compass();
-  ps = new ProxSensor();
+  //ps = new ProxSensor();
   BtBase::main = new BtBase();
 }
 
@@ -36,18 +36,19 @@ void loopAction()
         Serial.read();
       }
       delay(50);
+      BtBase::main->sendIMU(*imu, *c);
       BtBase::main->sendCmd("TEST");
       Serial.println("Test envoyé");
       delay(50);
-      BtBase::main->sendCmd("end");
-      delay(50);
   }
 
-  ps->update();
+  //ps->update();
 
   if (FlexSensor::pointe(index0, majeur, quatrieme))
   {
     Serial.println("Pointage");
+    BtBase::main->sendIMU(*imu, *c);
+    delay(200);
     BtBase::main->sendCmd("PNTE");
     
     delay(1000);
@@ -55,20 +56,22 @@ void loopAction()
 
   if (mesure.getEtat() == 1)
   {
-  Serial.println(mesure.getEtat());
-  Serial.println(mesure.getDoigt());
-    if (mesure.getDoigt() == 3)
-    {
-    BtBase::main->sendCmd("POSI");
-    }
-    else if (mesure.getDoigt() == 2)
-    {
-    BtBase::main->sendCmd("LMPE");
-    }
-    else if (mesure.getDoigt() == 1)
-    {
+  //Serial.println(mesure.getEtat());
+  //Serial.println(mesure.getDoigt());
+  int doigt = mesure.getDoigt();
     BtBase::main->sendIMU(*imu, *c);
-    BtBase::main->sendCmd("PNTE");
+    delay(100);
+    if (doigt == 3)
+    {
+    BtBase::main->sendCmd("DGTa");
+    }
+    else if (doigt == 2)
+    {
+    BtBase::main->sendCmd("DGTb");
+    }
+    else if (doigt == 1)
+    {
+    BtBase::main->sendCmd("DGTc");
     }
 
   Serial.println();
@@ -87,7 +90,7 @@ Serial.println(FlexSensor::pointe(index0, majeur, quatrieme));
 
 void loop() {  
   BtBase::main->loop(&loopAction);
-Serial.println("index");
+/*Serial.println("index");
 Serial.println(index0.getEtat());
 Serial.println("majeur");
 Serial.println(majeur.getEtat());
@@ -97,5 +100,5 @@ Serial.println("pointage");
 Serial.println(FlexSensor::pointe(index0, majeur, quatrieme));
   Serial.println(mesure.getEtat());
   Serial.println(mesure.getDoigt());
-delay(1000);
+delay(1000);*/
 }
