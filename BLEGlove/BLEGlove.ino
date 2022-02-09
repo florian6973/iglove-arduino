@@ -67,6 +67,7 @@ void loopAction()
     }
     else if (mesure.getDoigt() == 1)
     {
+    BtBase::main->sendIMU(*imu, *c);
     BtBase::main->sendCmd("PNTE");
     }
 

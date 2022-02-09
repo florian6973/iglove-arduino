@@ -41,6 +41,8 @@ class BtBase
     BLEStringCharacteristic check;
     
     BLEFloatCharacteristic heading;
+    BLEFloatCharacteristic pitch;
+    BLEFloatCharacteristic roll;
 };
 
 #endif

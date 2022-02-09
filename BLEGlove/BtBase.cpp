@@ -27,6 +27,10 @@ BtBase::BtBase() :
      check(BLEStringCharacteristic("abce",  // standard 16-bit characteristic UUID
         BLERead | BLEWrite, 4)),        
      heading(BLEFloatCharacteristic("d001",  // standard 16-bit characteristic UUID
+        BLERead | BLEIndicate)),    
+     pitch(BLEFloatCharacteristic("d002",  // standard 16-bit characteristic UUID
+        BLERead | BLEIndicate)),    
+     roll(BLEFloatCharacteristic("d003",  // standard 16-bit characteristic UUID
         BLERead | BLEIndicate))
 {
   pinMode(LED_BUILTIN, OUTPUT); // initialize the built-in LED pin to indicate when a central is connected
@@ -57,6 +61,8 @@ BtBase::BtBase() :
   gloveService.addCharacteristic(cmd);
   gloveService.addCharacteristic(check);
   gloveService.addCharacteristic(heading);
+  gloveService.addCharacteristic(pitch);
+  gloveService.addCharacteristic(roll);
   
   BLE.addService(gloveService); // Add the service
 
@@ -126,4 +132,6 @@ void BtBase::sendIMU(IMUSensor imu, Compass c)
     mag_z.writeValue(data[8]);     
 
     heading.writeValue(c.getHeading());
+    pitch.writeValue(c.getPitch());
+    roll.writeValue(c.getRoll());
 }

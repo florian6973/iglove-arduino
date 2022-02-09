@@ -12,7 +12,13 @@ class Compass
   public:
     Compass();
     float getHeading();
+    float getPitch();
+    float getRoll();
   private:
+    void calculate();
+    float _u = 0.;
+    float _v = 0.;
+    float _w = 0.;
     int get_heading(float acc[3], float mag[3], float p[3]);
     void get_scaled_IMU(float Axyz[3], float Mxyz[3]);
     void vector_cross(float a[3], float b[3], float out[3]);

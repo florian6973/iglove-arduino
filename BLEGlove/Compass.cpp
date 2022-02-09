@@ -96,18 +96,38 @@ void Compass::vector_normalize(float a[3])
 Compass::Compass()
 {}
 
-float Compass::getHeading()
+void Compass::calculate()
 {
-  
-    float Axyz[3], Mxyz[3];
+  float Axyz[3], Mxyz[3];
     get_scaled_IMU(Axyz, Mxyz);    
     Axyz[0] = -Axyz[0];
     float heading = get_heading(Axyz, Mxyz, p);
     float pitch = atan2(-Axyz[0], sqrt(Axyz[1] * Axyz[1] + Axyz[2] * Axyz[2]));
     float roll = atan2(Axyz[1], sqrt(Axyz[0] * Axyz[0] + Axyz[2] * Axyz[2]));
     heading = heading * M_PI / 180; // to radians
-    float u = cos(heading)*cos(pitch);
-    float v = sin(heading)*cos(pitch);
-    float w = sin(pitch);
-    return heading;
+    _u = cos(heading)*cos(pitch);
+    _v = sin(heading)*cos(pitch);
+    _w = sin(pitch);
+}
+
+float Compass::getHeading()
+{
+  calculate();
+  return _u;
+    
+}
+
+float Compass::getPitch()
+{
+  calculate();
+  return _v;
+    
+}
+
+
+float Compass::getRoll()
+{
+  calculate();
+  return _w;
+    
 }
